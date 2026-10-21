@@ -1,0 +1,2106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GroupMate — Your Team Workspace</title>
+  <style>
+* {
+    box-sizing: border-box
+}
+
+:root {
+    --ink: #1c2742;
+    --muted: #748099;
+    --line: #e7eaf2;
+    --bg: #f5f7fb;
+    --purple: #5c5de2;
+    --green: #16856b
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 "Segoe UI", Arial, sans-serif
+}
+
+.sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 245px;
+    background: #fff;
+    border-right: 1px solid var(--line);
+    padding: 24px 17px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto
+}
+
+.brand {
+    font-size: 21px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 28px
+}
+
+.brand-icon {
+    display: grid;
+    place-items: center;
+    background: var(--purple);
+    color: white;
+    border-radius: 11px;
+    width: 37px;
+    height: 37px
+}
+
+.workspace {
+    background: #f1f2ff;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 13px;
+    font-weight: 700
+}
+.workspace-edit-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.workspace-pencil { flex-shrink:0; border:0; border-radius:6px; padding:4px 7px; background:#e2e4ff; color:var(--purple); font-size:18px; line-height:1; cursor:pointer; }
+.workspace-pencil:hover { background:#d6d8ff; }
+
+.sidebar nav {
+    display: grid;
+    gap: 6px;
+    margin-top: 24px
+}
+
+.nav-btn {
+    border: 0;
+    background: transparent;
+    text-align: left;
+    padding: 12px;
+    border-radius: 9px;
+    color: var(--muted);
+    font-weight: 600;
+    cursor: pointer
+}
+
+.nav-btn.active,
+.nav-btn:hover {
+    background: #eeeeff;
+    color: var(--purple)
+}
+
+.nav-btn span {
+    float: right;
+    background: #e2e4ff;
+    border-radius: 15px;
+    padding: 0 8px
+}
+
+.sidebar-note {
+    margin-top: auto;
+    background: #f6f7fb;
+    padding: 14px;
+    border-radius: 12px;
+    color: var(--muted);
+    font-size: 12px
+}
+
+.sidebar-note b {
+    color: var(--ink);
+    display: block;
+    margin-bottom: 5px
+}
+
+.admin-label {
+    padding: 18px 5px 0;
+    font-size: 12px;
+    color: var(--muted)
+}
+
+.main {
+    margin-left: 245px;
+    min-height: 100vh
+}
+
+.topbar {
+    height: 70px;
+    background: white;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    position: sticky;
+    top: 0;
+    z-index: 5
+}
+
+.muted,
+small,
+p {
+    color: var(--muted)
+}
+
+.button {
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--ink);
+    padding: 10px 14px;
+    border-radius: 9px;
+    font-weight: 700;
+    cursor: pointer
+}
+
+.button.primary {
+    background: var(--purple);
+    color: white;
+    border-color: var(--purple)
+}
+
+.button:hover {
+    filter: brightness(.97)
+}
+
+.view {
+    display: none;
+    padding: 30px 32px
+}
+
+.view.active {
+    display: block
+}
+
+.page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 23px
+}
+
+.eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--purple);
+    font-weight: 800
+}
+
+.eyebrow.light {
+    color: #d4d6ff
+}
+
+.page-heading h1 {
+    font-size: 29px;
+    letter-spacing: -.7px;
+    margin: 5px 0
+}
+
+.page-heading p {
+    margin: 0
+}
+
+.assignment-banner {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    background: linear-gradient(115deg, #202c50, #393d7a);
+    color: white;
+    padding: 23px;
+    border-radius: 15px;
+    margin-bottom: 18px
+}
+
+.assignment-symbol {
+    display: grid;
+    place-items: center;
+    background: #ffffff20;
+    width: 47px;
+    height: 47px;
+    border-radius: 13px;
+    font-size: 23px
+}
+
+.banner-copy {
+    flex: 1
+}
+
+.banner-copy h2 {
+    margin: 5px 0;
+    font-size: 20px
+}
+
+.banner-copy p {
+    margin: 0;
+    color: #dce0f2;
+    font-size: 13px
+}
+
+.due {
+    border-left: 1px solid #ffffff44;
+    padding-left: 20px;
+    min-width: 120px
+}
+
+.due small {
+    display: block;
+    color: #d4d6ff
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px
+}
+
+.stat,
+.panel {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 7px 25px #20315b08
+}
+
+.stat {
+    padding: 18px
+}
+
+.stat span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px
+}
+
+.stat strong {
+    display: block;
+    font-size: 28px;
+    margin: 8px 0 0
+}
+
+.stat small {
+    font-size: 11px
+}
+
+.columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 17px
+}
+
+.panel {
+    padding: 20px
+}
+
+.panel-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 19px
+}
+
+.panel h3 {
+    margin: 0;
+    font-size: 16px
+}
+
+.panel-heading p {
+    margin: 4px 0 0;
+    font-size: 12px
+}
+
+.live {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--green);
+    background: #e7f8f1;
+    border-radius: 20px;
+    padding: 6px 9px
+}
+
+.progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-bottom: 10px
+}
+
+.progress-meta strong {
+    font-size: 27px
+}
+
+.progress-meta span {
+    font-size: 12px;
+    color: var(--muted)
+}
+
+.progress-track {
+    height: 9px;
+    background: #edf0f6;
+    border-radius: 10px;
+    overflow: hidden
+}
+
+.progress-track div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #5c5de2, #32b69a);
+    transition: width .2s
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--muted)
+}
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px
+}
+
+.toolbar input {
+    flex: 1
+}
+
+.toolbar input,
+select,
+input,
+textarea {
+    font: inherit;
+    border: 1px solid #dfe4ef;
+    border-radius: 9px;
+    padding: 10px 12px;
+    background: white;
+    color: var(--ink)
+}
+
+.task-card,
+.member-row,
+.activity-row {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+
+.task-copy {
+    flex: 1;
+    min-width: 0
+}
+
+.task-copy strong {
+    display: block
+}
+
+.task-copy p {
+    font-size: 12px;
+    margin: 4px 0
+}
+
+.task-copy small {
+    font-size: 11px
+}
+
+.status {
+    font-size: 10px;
+    font-weight: 800;
+    border-radius: 20px;
+    padding: 5px 8px;
+    white-space: nowrap
+}
+
+.status-Not-Started {
+    background: #eef0f5;
+    color: #67748b
+}
+
+.status-In-Progress {
+    background: #e8f2ff;
+    color: #2765ad
+}
+
+.status-Submitted {
+    background: #fff4d8;
+    color: #9a6c0b
+}
+
+.status-Approved {
+    background: #e4f8ef;
+    color: #16856b
+}
+
+.member-actions { display:flex; align-items:center; justify-content:flex-end; gap:7px; flex-wrap:wrap; }
+
+.task-actions {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    flex-wrap: wrap
+}
+
+.task-actions select {
+    padding: 6px;
+    font-size: 12px
+}
+
+.list:empty:after {
+    content: "No activity yet.";
+    display: block;
+    color: var(--muted);
+    padding: 12px 0
+}
+
+.activity-row {
+    margin: 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    padding: 12px 0
+}
+
+.activity-row:last-child {
+    border: 0
+}
+
+.activity-row small {
+    display: block;
+    font-size: 11px
+}
+
+.notice {
+    background: #eef4ff;
+    color: #5c6a86;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 12px
+}
+
+footer {
+    padding: 24px 32px;
+    color: #9aa3b5;
+    font-size: 11px
+}
+
+dialog {
+    border: 0;
+    border-radius: 16px;
+    width: min(520px, calc(100% - 28px));
+    padding: 24px;
+    box-shadow: 0 20px 70px #0003
+}
+
+dialog::backdrop {
+    background: #10182b88
+}
+
+.dialog-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px
+}
+
+.dialog-heading h2 {
+    margin: 0;
+    font-size: 21px
+}
+
+.icon-button {
+    border: 0;
+    border-radius: 8px;
+    background: #f1f3f8;
+    font-size: 20px;
+    width: 34px;
+    height: 34px;
+    cursor: pointer
+}
+
+.form-field {
+    margin-bottom: 13px
+}
+
+.form-field label {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 6px
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select {
+    width: 100%
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px
+}
+
+.toast {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #1e2b4a;
+    color: white;
+    border-radius: 10px;
+    padding: 12px 17px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+    z-index: 20
+}
+
+.toast.show {
+    opacity: 1
+}
+
+@media(max-width:1000px) {
+    .sidebar {
+        width: 210px
+    }
+
+    .main {
+        margin-left: 210px
+    }
+
+    .view {
+        padding: 24px 20px
+    }
+
+    .topbar {
+        padding: 0 20px
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr)
+    }
+
+    .columns {
+        grid-template-columns: 1fr
+    }
+}
+
+@media(max-width:680px) {
+    .sidebar {
+        position: static;
+        width: auto;
+        height: auto;
+        padding: 14px
+    }
+
+    .brand {
+        margin-bottom: 8px
+    }
+
+    .workspace,
+    .sidebar-note,
+    .admin-label {
+        display: none
+    }
+
+    .sidebar nav {
+        display: flex;
+        overflow: auto;
+        margin-top: 8px
+    }
+
+    .nav-btn {
+        white-space: nowrap;
+        padding: 9px
+    }
+
+    .main {
+        margin-left: 0
+    }
+
+    .topbar {
+        height: 60px;
+        padding: 0 14px
+    }
+
+    .view {
+        padding: 21px 14px
+    }
+
+    .page-heading {
+        display: block
+    }
+
+    .page-heading>.button {
+        margin-top: 14px
+    }
+
+    .page-heading h1 {
+        font-size: 25px
+    }
+
+    .assignment-banner {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        padding: 17px
+    }
+
+    .due {
+        border: 0;
+        padding-left: 64px;
+        width: 100%
+    }
+
+    .stats {
+        gap: 9px
+    }
+
+    .stat {
+        padding: 13px
+    }
+
+    .stat strong {
+        font-size: 24px
+    }
+
+    .task-card {
+        align-items: flex-start;
+        flex-wrap: wrap
+    }
+
+    .task-actions {
+        width: 100%
+    }
+
+    footer {
+        padding: 20px 14px
+    }
+
+    .toolbar {
+        flex-wrap: wrap
+    }
+
+    .toolbar input,
+    .toolbar select {
+        width: 100%
+    }
+}
+
+/* Final assignment upload and admin review */
+.upload-panel { padding: 22px; margin-bottom: 16px; }
+.upload-drop { border: 2px dashed #cfd5e5; border-radius: 12px; padding: 24px; text-align: center; background: #fafbff; }
+.upload-drop input { display: block; width: 100%; margin: 14px 0; }
+.upload-state { display: inline-block; padding: 5px 10px; border-radius: 20px; background: #fff4d8; color: #946500; font-size: 12px; font-weight: 800; }
+.upload-state.approved { background: #e4f8ef; color: #16856b; }
+.upload-state.changes { background: #ffe8e8; color: #a12b2b; }
+.review-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; }
+.upload-hint { font-size: 12px; margin-top: 10px; }
+
+
+
+/* GroupMate polish pass: clearer hierarchy, accessible focus, and mobile-friendly controls */
+:root {
+  --ink: #1d2544;
+  --muted: #74809a;
+  --line: #e5e9f4;
+  --bg: #f5f6fc;
+  --purple: #5c5de2;
+  --green: #16856b;
+  --purple-dark: #4446c4;
+  --shadow-soft: 0 12px 32px rgba(42, 51, 100, .07);
+}
+body {
+  background:
+    radial-gradient(ellipse at 92% 0%, rgba(117, 119, 245, .10), transparent 29rem),
+    var(--bg);
+  color: var(--ink);
+}
+button, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button { transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid rgba(92, 93, 226, .23);
+  outline-offset: 2px;
+}
+.button { box-shadow: 0 1px 1px rgba(23, 35, 75, .03); }
+.button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(35, 45, 90, .09); }
+.button:active:not(:disabled) { transform: translateY(0); }
+.button:disabled { cursor: not-allowed; filter: grayscale(.1); }
+.button.primary { background: linear-gradient(135deg, #6869ee, #5556d7); border-color: #5556d7; }
+.button.primary:hover:not(:disabled) { background: linear-gradient(135deg, #5b5ce1, #4748c6); }
+.sidebar { box-shadow: 8px 0 30px rgba(25, 35, 75, .025); }
+.brand-icon { box-shadow: 0 7px 15px rgba(92, 93, 226, .22); }
+.workspace { border: 1px solid #e5e6ff; }
+.workspace-pencil { min-width: 32px; min-height: 30px; display: inline-grid; place-items: center; }
+.nav-btn { transition: background .16s ease, color .16s ease, transform .16s ease; }
+.nav-btn.active { box-shadow: inset 3px 0 #5c5de2; }
+.topbar { box-shadow: 0 5px 18px rgba(30, 42, 90, .025); }
+.view { animation: view-enter .22s ease both; }
+@keyframes view-enter { from { opacity: .55; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.page-heading h1 { letter-spacing: -.8px; }
+.assignment-banner { position: relative; overflow: hidden; box-shadow: 0 14px 32px rgba(35, 43, 95, .13); }
+.assignment-banner::after { content: ""; position: absolute; width: 220px; height: 220px; right: -82px; top: -122px; border: 1px solid #ffffff19; border-radius: 50%; box-shadow: 0 0 0 24px #ffffff08, 0 0 0 50px #ffffff06; pointer-events: none; }
+.stat, .panel { box-shadow: var(--shadow-soft); transition: transform .18s ease, box-shadow .18s ease; }
+.stat:hover, .panel:hover { box-shadow: 0 15px 34px rgba(42, 51, 100, .09); }
+.stat { position: relative; overflow: hidden; }
+.stat::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: linear-gradient(#7778f2, #3bb99a); opacity: .8; }
+.progress-track { height: 10px; }
+.progress-track div { border-radius: inherit; }
+.task-card, .member-row { box-shadow: 0 5px 18px rgba(42, 51, 100, .035); transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+.task-card:hover, .member-row:hover { border-color: #d6d9fb; box-shadow: 0 10px 24px rgba(42, 51, 100, .07); }
+.task-actions .button, .member-actions .button { padding: 8px 11px; }
+input:hover, select:hover, textarea:hover { border-color: #c9cfee; }
+input:focus, select:focus, textarea:focus { border-color: #8586ef; box-shadow: 0 0 0 3px rgba(92, 93, 226, .08); outline: none; }
+.dialog-heading { gap: 12px; }
+dialog { max-height: min(88vh, 780px); overflow-y: auto; }
+.toast { box-shadow: 0 12px 28px rgba(24, 36, 76, .18); max-width: calc(100vw - 32px); }
+.empty-state { text-align: center; padding: 30px 18px; }
+.empty-state .empty-icon { width: 52px; height: 52px; margin: 0 auto 12px; display: grid; place-items: center; border-radius: 16px; background: #eeeeff; color: var(--purple); font-size: 24px; }
+.empty-state h3 { margin: 0 0 6px; }
+.empty-state p { margin: 0; }
+.upload-drop { border-color: #c8cdf0; background: linear-gradient(160deg, #fbfbff, #f7f8ff); }
+.upload-drop input[type="file"] { max-width: 520px; margin: 14px auto; }
+.upload-drop input[type="file"]::file-selector-button { border: 0; background: #eeeeff; color: #4f50ce; border-radius: 7px; padding: 8px 10px; margin-right: 10px; cursor: pointer; font-weight: 700; }
+.upload-state { letter-spacing: .1px; }
+footer { text-align: center; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+@media(max-width:680px) {
+  .workspace, .sidebar-note, .admin-label { display: none; }
+  .workspace.workspace-edit-row { display: flex; margin: 8px 0 0; width: 100%; }
+  .sidebar { border-right: 0; border-bottom: 1px solid var(--line); box-shadow: 0 5px 16px rgba(30, 42, 90, .03); }
+  .sidebar nav { padding-bottom: 2px; }
+  .nav-btn.active { box-shadow: inset 0 -3px #5c5de2; }
+  .topbar { position: sticky; }
+  .task-actions { gap: 6px; }
+  .task-actions select { max-width: 100%; }
+  .member-row { align-items: flex-start; flex-direction: column; }
+  .member-actions { justify-content: flex-start; width: 100%; }
+  .review-row { align-items: flex-start; }
+  .review-row > div { max-width: 100%; overflow-wrap: anywhere; }
+  .dialog-actions { position: sticky; bottom: -24px; background: white; padding: 10px 0 0; }
+}
+
+
+/* Firebase login and friendly controls */
+.auth-gate{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#171d3b,#5c5de2 60%,#9a7bff);}
+.auth-card{width:min(420px,100%);background:#fff;border-radius:24px;padding:28px;box-shadow:0 24px 80px #10152e55;color:#1c2742}
+.auth-logo{width:54px;height:54px;display:grid;place-items:center;border-radius:17px;background:#5c5de2;color:white;font-size:25px;font-weight:900;margin-bottom:16px}
+.auth-card h1{margin:0 0 8px;font-size:27px}.auth-card p{margin:0 0 20px;color:#748099}.auth-card label{display:block;font-weight:700;font-size:13px;margin:14px 0 6px}.auth-card input{width:100%;padding:13px;border:1px solid #dfe4ef;border-radius:11px;font:inherit}.auth-card button{width:100%;margin-top:18px;padding:13px;border:0;border-radius:11px;background:#5c5de2;color:white;font-weight:800;font-size:15px;cursor:pointer}.auth-error{margin-top:12px;color:#b42318;font-size:13px;overflow-wrap:anywhere}.cloud-badge{font-size:11px;color:#16856b;background:#e7f8f1;padding:5px 9px;border-radius:20px;font-weight:800;margin-left:8px}
+body.auth-locked>.sidebar,body.auth-locked>.main{visibility:hidden}
+@media(max-width:480px){.auth-card{padding:23px}}
+
+</style>
+</head>
+<body class="auth-locked">
+  <div class="auth-gate" id="auth-gate">
+    <form class="auth-card" id="auth-form">
+      <div class="auth-logo">G</div>
+      <h1>Welcome to GroupMate 👋</h1>
+      <p>Sign in to open your team's shared workspace.</p>
+      <label for="auth-email">Email address</label>
+      <input id="auth-email" type="email" autocomplete="username" required placeholder="you@example.com">
+      <label for="auth-password">Password</label>
+      <input id="auth-password" type="password" autocomplete="current-password" required minlength="6" placeholder="At least 6 characters">
+      <button type="submit" id="auth-submit">Sign in securely</button>
+      <div class="auth-error" id="auth-error" role="alert"></div>
+      <p style="font-size:12px;margin:16px 0 0">Accounts are created by the project owner in Firebase Authentication.</p>
+    </form>
+  </div>
+
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-icon">G</span> GroupMate</div>
+    <div class="workspace workspace-edit-row">
+      <span>📚 <span id="workspace-name">Group Assignment</span></span>
+      <button type="button" id="edit-workspace" class="workspace-pencil" aria-label="Edit workspace name" title="Edit workspace name">✎</button>
+    </div>
+    <nav>
+      <button class="nav-btn active" data-view="overview">Overview</button>
+      <button class="nav-btn" data-view="tasks">Tasks <span id="task-count">0</span></button>
+      <button class="nav-btn" data-view="submission">Assignment upload</button>
+      <button class="nav-btn" data-view="members">Members</button>
+      <button class="nav-btn" data-view="activity">Activity log</button>
+    </nav>
+    <div class="sidebar-note"><b>✨ Small steps, big finish.</b><br>Work together, stay on track, and celebrate every milestone.</div>
+    <div class="admin-label">✨ Demo workspace · Admin view</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><span class="muted">Workspace /</span> <b id="page-title">Overview</b></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="cloud-badge" id="role-badge">CONNECTING</span><button type="button" class="button" id="logout-button">Log out</button><button type="button" class="button primary" id="new-task-top">＋ New task</button></div>
+    </header>
+
+    <section class="view active" id="overview-view">
+      <div class="page-heading">
+        <div><span class="eyebrow">YOUR TEAM AT A GLANCE</span><h1>Let’s get it done.</h1><p>Your team’s tasks, progress, and final submission — all in one friendly space.</p></div>
+        <button type="button" class="button" id="edit-assignment">Edit assignment</button>
+      </div>
+      <div class="assignment-banner">
+        <div class="assignment-symbol">✎</div>
+        <div class="banner-copy"><span class="eyebrow light">CURRENT ASSIGNMENT</span><h2 id="assignment-title">Management Assignment</h2><p id="assignment-description">Organize topics, deadlines and drafts in one place.</p></div>
+        <div class="due"><small>DUE DATE</small><b id="assignment-due">Not set</b></div>
+      </div>
+      <div class="stats">
+        <article class="stat"><span>Total tasks</span><strong id="total-tasks">0</strong><small>Across this assignment</small></article>
+        <article class="stat"><span>Approved</span><strong id="approved-tasks">0</strong><small>Approved by admin</small></article>
+        <article class="stat"><span>In progress</span><strong id="progress-tasks">0</strong><small>Currently underway</small></article>
+        <article class="stat"><span>Team members</span><strong id="member-count">8</strong><small>In this workspace</small></article>
+      </div>
+      <div class="columns">
+        <section class="panel">
+          <div class="panel-heading"><div><h3>Assignment progress</h3><p>Based on admin-approved tasks.</p></div><span class="live">LIVE</span></div>
+          <div class="progress-meta"><strong id="progress-percent">0%</strong><span id="progress-fraction">0 of 0 tasks approved</span></div>
+          <div class="progress-track"><div id="progress-fill"></div></div>
+          <div class="legend"><span>● Approved</span><span>● Submitted</span><span>● In progress</span><span>● Not started</span></div>
+        </section>
+        <section class="panel">
+          <div class="panel-heading"><div><h3>Recent activity</h3><p>Latest changes in this browser.</p></div></div>
+          <div id="recent-activity" class="list"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="view" id="tasks-view">
+      <div class="page-heading"><div><span class="eyebrow">PLAN. DO. SUBMIT.</span><h1>Tasks.</h1><p>Break the assignment into small steps, share ownership, and track progress together.</p></div><button type="button" class="button primary" id="create-task">＋ Create task</button></div>
+      <div class="toolbar"><input id="task-search" type="search" placeholder="Search tasks..."><select id="task-filter"><option value="">All statuses</option><option>Not Started</option><option>In Progress</option><option>Submitted</option><option>Approved</option></select></div>
+      <div id="task-list"></div>
+    </section>
+
+    <section class="view" id="submission-view">
+      <div class="page-heading">
+        <div><span class="eyebrow">FINAL SUBMISSION</span><h1>Assignment upload.</h1><p>Finish each task, submit your final file, and keep an eye on admin feedback.</p></div>
+      </div>
+      <section class="panel upload-panel">
+        <div class="panel-heading"><div><h3>Upload final assignment</h3><p>Accepted formats: PDF, DOC, DOCX, PPT, PPTX, ZIP.</p></div><span id="submission-state" class="upload-state">Not submitted</span></div>
+        <div class="upload-drop">
+          <b>Select your completed assignment</b>
+          <p id="upload-progress-text">All tasks must be Submitted or Approved before upload.</p>
+          <input type="file" id="assignment-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.zip">
+          <button type="button" class="button primary" id="submit-assignment">Submit for admin approval</button>
+          <p class="upload-hint" id="upload-hint">The file is saved in this browser for this demo. It is not uploaded to a shared server, so other devices cannot see it.</p>
+        </div>
+        <div id="submission-details"></div>
+      </section>
+      <section class="panel upload-panel">
+        <div class="panel-heading"><div><h3>Admin approval</h3><p>Review the submitted assignment below.</p></div></div>
+        <div id="admin-review"><p>No assignment submitted for review yet.</p></div>
+      </section>
+    </section>
+
+    <section class="view" id="members-view">
+      <div class="page-heading"><div><span class="eyebrow">ONE TEAM, SHARED OWNERSHIP</span><h1>Team members.</h1><p>Add teammates, keep their SBU IDs up to date, and manage demo access.</p></div><button type="button" class="button primary" id="add-member">＋ Add member</button></div>
+      <section class="panel"><div class="panel-heading"><div><h3>Workspace people</h3><p>Edit names or add members as needed.</p></div></div><div id="member-list"></div></section>
+      <p class="notice"><b>Note:</b> This is a local demo. Secure logins, member-only access and real admin permissions require a backend such as Firebase.</p>
+    </section>
+
+    <section class="view" id="activity-view">
+      <div class="page-heading"><div><span class="eyebrow">A CLEAR RECORD OF CHANGES</span><h1>Activity log.</h1><p>A helpful timeline of what changed and when.</p></div></div>
+      <section class="panel"><div id="activity-list" class="list"></div></section>
+    </section>
+    <footer>GroupMate Workspace · Keep the team moving.</footer>
+  </main>
+
+  <dialog id="edit-dialog">
+    <form method="dialog" id="edit-form">
+      <div class="dialog-heading">
+        <h2 id="dialog-title">Create task</h2>
+        <button type="button" class="icon-button" value="cancel" aria-label="Close">×</button>
+      </div>
+      <div id="dialog-fields"></div>
+      <div class="dialog-actions">
+        <button type="button" class="button" value="cancel">Cancel</button>
+        <button type="submit" class="button primary" id="save-dialog" value="default">Save</button>
+      </div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+// IMPORTANT: replace this with the exact email used for your Admin account.
+const ADMIN_EMAIL = "jitendra.kaalnandan@gmail.com".toLowerCase();
+const firebaseConfig = {
+  apiKey: "AIzaSyDdbQx35qHLnpLxWl70u7nB7wKSb_k8tr0",
+  authDomain: "groupmate-c3d11.firebaseapp.com",
+  projectId: "groupmate-c3d11",
+  storageBucket: "groupmate-c3d11.firebasestorage.app",
+  messagingSenderId: "443842013625",
+  appId: "1:443842013625:web:fe9fca915e3fa19d11ee68",
+  measurementId: "G-QLJ790KPV5"
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const sharedDoc = doc(db, "groupmate", "workspace");
+let currentUser = null;
+let isAdmin = false;
+let remoteUnsubscribe = null;
+let cloudApplying = false;
+let cloudSaveTimer = null;
+
+
+const STORAGE_KEY = "groupmate_modular_demo_v1";
+
+const initialData = {
+    workspaceName: "Group Assignment",
+    assignment: {
+        title: "Management Assignment",
+        description: "Organize topics, deadlines and drafts in one place.",
+        due: ""
+    },
+
+    members: [
+        "Megha",
+        "Jitendra",
+        "Mahima",
+        "Rahul",
+        "Priya",
+        "Aman",
+        "Neha",
+        "Group Admin"
+    ].map((name, index) => ({
+        id: index + 1,
+        name,
+        role: index === 7 ? "Admin" : "Member",
+        access: "Approved"
+    })),
+
+    tasks: [],
+    activity: []
+};
+
+const $ = id => document.getElementById(id);
+
+const escapeHTML = value =>
+    String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+
+function loadData() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+        if (!saved || typeof saved !== "object") {
+            return {
+                workspaceName: initialData.workspaceName,
+                assignment: { ...initialData.assignment },
+                members: initialData.members.map(member => ({ ...member })),
+                tasks: [],
+                activity: []
+            };
+        }
+
+        return {
+            workspaceName: saved.workspaceName || initialData.workspaceName,
+            assignment: {
+                ...initialData.assignment,
+                ...(saved.assignment || {})
+            },
+
+            members: Array.isArray(saved.members)
+                ? saved.members.filter(member => member && typeof member.name === "string")
+                : initialData.members.map(member => ({ ...member })),
+
+            tasks: Array.isArray(saved.tasks)
+                ? saved.tasks.filter(task => task && typeof task === "object")
+                : [],
+
+            activity: Array.isArray(saved.activity)
+                ? saved.activity.filter(item => item && typeof item === "object")
+                : []
+        };
+    } catch (error) {
+        console.error("Data loading error:", error);
+
+        return {
+            workspaceName: initialData.workspaceName,
+            assignment: { ...initialData.assignment },
+            members: initialData.members.map(member => ({ ...member })),
+            tasks: [],
+            activity: []
+        };
+    }
+}
+
+let data = loadData();
+
+function persist() {
+    syncSubmissionWithTasks();
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch (error) { console.error("Local save error:", error); notify("Browser storage could not save changes."); }
+    render();
+    if (currentUser && isAdmin && !cloudApplying) {
+        clearTimeout(cloudSaveTimer);
+        cloudSaveTimer = setTimeout(async () => {
+            try {
+                await setDoc(sharedDoc, { ...data, updatedAt: new Date().toISOString(), updatedBy: currentUser.uid });
+                const badge = $("role-badge"); if (badge) badge.textContent = "☁️ SAVED";
+            } catch (error) {
+                console.error("Cloud save error:", error);
+                notify("Cloud save failed. Check Firestore rules and connection.");
+            }
+        }, 250);
+    }
+}
+
+function logActivity(message) {
+    data.activity.unshift({
+        message,
+        time: new Date().toLocaleString()
+    });
+
+    data.activity = data.activity.slice(0, 100);
+}
+
+function notify(message) {
+    const toast = $("toast");
+
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(notify.timer);
+
+    notify.timer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2400);
+}
+
+function statusHTML(status) {
+    const safeStatus = status || "Not Started";
+
+    return `
+        <span class="status status-${escapeHTML(
+            safeStatus.replace(/\s+/g, "-")
+        )}">
+            ${escapeHTML(safeStatus)}
+        </span>
+    `;
+}
+
+function memberOptions(selected = "") {
+    const unassigned = `<option value="" ${selected ? "" : "selected"}>Unassigned</option>`;
+
+    return unassigned + data.members.map(member => `
+        <option
+            value="${escapeHTML(member.name)}"
+            ${member.name === selected ? "selected" : ""}
+        >
+            ${escapeHTML(member.name)}
+        </option>
+    `).join("");
+}
+const FILE_DB_NAME = "groupmate_local_files_v1";
+const FILE_DB_STORE = "submittedFiles";
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB for this local demo
+
+function openFileDB() {
+    return new Promise((resolve, reject) => {
+        if (!("indexedDB" in window)) {
+            reject(new Error("This browser does not support local file storage."));
+            return;
+        }
+        const request = indexedDB.open(FILE_DB_NAME, 1);
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains(FILE_DB_STORE)) db.createObjectStore(FILE_DB_STORE);
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error("Could not open local file storage."));
+    });
+}
+
+async function saveLocalSubmissionFile(file) {
+    const db = await openFileDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(FILE_DB_STORE, "readwrite");
+        transaction.objectStore(FILE_DB_STORE).put({ blob: file, name: file.name, type: file.type, size: file.size }, "final-assignment");
+        transaction.oncomplete = () => { db.close(); resolve(); };
+        transaction.onerror = () => { const error = transaction.error; db.close(); reject(error || new Error("File could not be saved.")); };
+        transaction.onabort = () => { const error = transaction.error; db.close(); reject(error || new Error("File save was cancelled.")); };
+    });
+}
+
+async function downloadLocalSubmissionFile() {
+    const db = await openFileDB();
+    const record = await new Promise((resolve, reject) => {
+        const transaction = db.transaction(FILE_DB_STORE, "readonly");
+        const request = transaction.objectStore(FILE_DB_STORE).get("final-assignment");
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error || new Error("Could not read the saved file."));
+        transaction.oncomplete = () => db.close();
+    });
+    if (!record || !record.blob) throw new Error("The actual file is not available in this browser. Please select it again and resubmit.");
+    const url = URL.createObjectURL(record.blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = record.name || "assignment-file";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function removeLocalSubmissionFile() {
+    try {
+        const db = await openFileDB();
+        await new Promise((resolve, reject) => {
+            const transaction = db.transaction(FILE_DB_STORE, "readwrite");
+            transaction.objectStore(FILE_DB_STORE).delete("final-assignment");
+            transaction.oncomplete = resolve;
+            transaction.onerror = () => reject(transaction.error || new Error("Could not remove file."));
+        });
+        db.close();
+    } catch (error) {
+        console.warn("Local file cleanup failed:", error);
+    }
+}
+
+function getSubmission() {
+    try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY + "_submission")) || null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function syncSubmissionWithTasks() {
+    const submission = getSubmission();
+    if (!submission) return;
+    const tasksComplete = data.tasks.length > 0 && data.tasks.every(task => ["Submitted", "Approved"].includes(task.status));
+    if (!tasksComplete && ["Pending approval", "Approved"].includes(submission.status)) {
+        submission.status = "Changes requested";
+        submission.feedback = "Tasks changed after submission. Complete all tasks and submit again.";
+        try {
+            localStorage.setItem(STORAGE_KEY + "_submission", JSON.stringify(submission));
+        } catch (error) {
+            console.error("Submission save error:", error);
+        }
+        logActivity("Final assignment status reset because tasks are no longer complete.");
+    }
+}
+
+function setSubmission(submission) {
+    try {
+        if (submission) localStorage.setItem(STORAGE_KEY + "_submission", JSON.stringify(submission));
+        else localStorage.removeItem(STORAGE_KEY + "_submission");
+    } catch (error) {
+        notify("Submission status save nahi hua.");
+    }
+    renderSubmission();
+}
+
+function renderSubmission() {
+    const tasksComplete = data.tasks.length > 0 && data.tasks.every(task => ["Submitted", "Approved"].includes(task.status));
+    const fileInput = $("assignment-file");
+    const submitButton = $("submit-assignment");
+    const statusEl = $("submission-state");
+    const progressText = $("upload-progress-text");
+    const details = $("submission-details");
+    const review = $("admin-review");
+    if (!fileInput || !submitButton || !statusEl || !progressText || !details || !review) return;
+
+    submitButton.disabled = !tasksComplete;
+    submitButton.style.opacity = tasksComplete ? "1" : ".55";
+    progressText.textContent = tasksComplete
+        ? "All tasks are complete. You can upload the final assignment now."
+        : `Complete all tasks first. ${data.tasks.filter(task => ["Submitted", "Approved"].includes(task.status)).length} of ${data.tasks.length} tasks submitted/approved.`;
+
+    const submission = getSubmission();
+    statusEl.className = "upload-state" + (submission?.status === "Approved" ? " approved" : submission?.status === "Changes requested" ? " changes" : "");
+    statusEl.textContent = submission ? submission.status : "Not submitted";
+    details.innerHTML = submission ? `<div class="review-row"><div><b>${escapeHTML(submission.filename)}</b><br><small>${submission.fileSize ? `File size: ${Math.round(submission.fileSize / 1024)} KB · ` : ""}Submitted: ${escapeHTML(submission.submittedAt || "")}</small>${submission.feedback ? `<p>${escapeHTML(submission.feedback)}</p>` : ""}</div><div class="member-actions"><button type="button" class="button" data-download-submission="true">Download file</button><button type="button" class="button" id="remove-submission">Remove submission</button></div></div>` : "";
+
+    if (!submission) {
+        review.innerHTML = "<p>No assignment submitted for review yet.</p>";
+    } else {
+        const isPending = submission.status === "Pending approval";
+        review.innerHTML = `<div class="review-row"><div><b>${escapeHTML(submission.filename)}</b><br><small>Status: ${escapeHTML(submission.status)}</small>${submission.feedback ? `<p>${escapeHTML(submission.feedback)}</p>` : ""}</div><div class="member-actions"><button type="button" class="button" data-download-submission="true">Download file</button>${isPending ? '<button type="button" class="button primary" id="approve-submission">Approve assignment</button><button type="button" class="button" id="request-changes">Request changes</button>' : ""}</div></div>`;
+    }
+}
+
+function render() {
+    const workspaceNameElement = $("workspace-name");
+    if (workspaceNameElement) {
+        workspaceNameElement.textContent = data.workspaceName || "Group Assignment";
+    }
+
+    // Assignment details
+    $("assignment-title").textContent =
+        data.assignment.title || "Untitled assignment";
+
+    $("assignment-description").textContent =
+        data.assignment.description || "No description added.";
+
+    $("assignment-due").textContent =
+        data.assignment.due || "Not set";
+
+    // Statistics
+    const total = data.tasks.length;
+
+    const approved = data.tasks.filter(
+        task => task.status === "Approved"
+    ).length;
+
+    const progress = data.tasks.filter(
+        task => task.status === "In Progress"
+    ).length;
+
+    $("total-tasks").textContent = total;
+    $("approved-tasks").textContent = approved;
+    $("progress-tasks").textContent = progress;
+    $("member-count").textContent = data.members.length;
+    $("task-count").textContent = total;
+
+    const percentage = total
+        ? Math.round((approved / total) * 100)
+        : 0;
+
+    $("progress-percent").textContent = percentage + "%";
+
+    $("progress-fraction").textContent =
+        `${approved} of ${total} tasks approved`;
+
+    $("progress-fill").style.width = percentage + "%";
+
+    // Search and filter
+    const searchText = $("task-search").value.trim().toLowerCase();
+    const selectedStatus = $("task-filter").value;
+
+    const filteredTasks = data.tasks.filter(task => {
+        const text = [
+            task.title,
+            task.assignee,
+            task.description
+        ].join(" ").toLowerCase();
+
+        return text.includes(searchText) &&
+            (!selectedStatus || task.status === selectedStatus);
+    });
+
+    // Task list
+    $("task-list").innerHTML = filteredTasks.map(task => `
+        <article class="task-card">
+            <div class="task-copy">
+                <strong>${escapeHTML(task.title)}</strong>
+
+                <p>
+                    ${escapeHTML(task.description || "No description.")}
+                </p>
+
+                <small>
+                    Assigned to ${escapeHTML(task.assignee || "Unassigned")}
+                    ${task.due ? " · Due " + escapeHTML(task.due) : ""}
+                </small>
+            </div>
+
+            ${statusHTML(task.status)}
+
+            <div class="task-actions">
+                <select
+                    data-task-status="${escapeHTML(task.id)}"
+                    aria-label="Change task status"
+                >
+                    ${[
+                        "Not Started",
+                        "In Progress",
+                        "Submitted",
+                        "Approved"
+                    ].map(status => `
+                        <option
+                            value="${status}"
+                            ${status === task.status ? "selected" : ""}
+                        >
+                            ${status}
+                        </option>
+                    `).join("")}
+                </select>
+
+                <button
+                    type="button"
+                    class="button"
+                    data-edit="${escapeHTML(task.id)}"
+                >
+                    Edit
+                </button>
+
+                <button
+                    type="button"
+                    class="button"
+                    data-delete="${escapeHTML(task.id)}"
+                >
+                    Delete
+                </button>
+            </div>
+        </article>
+    `).join("") || `
+        <div class="panel empty-state">
+            <div class="empty-icon">✦</div>
+            <h3>Your first task starts here</h3>
+            <p>Create a small, clear next step and assign it to a teammate.</p>
+            <button type="button" class="button primary" data-new-task style="margin-top:14px">＋ Create first task</button>
+        </div>
+    `;
+
+    // Members list
+    $("member-list").innerHTML = data.members.map(member => `
+        <div class="member-row">
+            <div class="task-copy">
+                <strong>
+                    ${escapeHTML(member.name)}
+                    ${member.role === "Admin" ? " · Admin" : ""}
+                </strong>
+
+                <small>
+                    SBU ID: ${escapeHTML(member.sbuId || "Not added")} ·
+                    Access: ${escapeHTML(member.access || "Pending")}
+                </small>
+            </div>
+
+            <div class="member-actions">
+                <button
+                    type="button"
+                    class="button"
+                    data-edit-member="${escapeHTML(member.id)}"
+                    aria-label="Edit ${escapeHTML(member.name)}"
+                    title="Edit member"
+                >✎ Edit</button>
+
+                ${
+                    member.role === "Admin"
+                        ? "<b>Admin</b>"
+                        : member.access === "Pending"
+                            ? `
+                                <button
+                                    type="button"
+                                    class="button primary"
+                                    data-approve="${escapeHTML(member.id)}"
+                                >Approve</button>
+                            `
+                            : `
+                                <button
+                                    type="button"
+                                    class="button"
+                                    data-pending="${escapeHTML(member.id)}"
+                                >Set pending</button>
+                            `
+                }
+
+                ${
+                    member.role !== "Admin"
+                        ? `
+                            <button
+                                type="button"
+                                class="button"
+                                data-remove-member="${escapeHTML(member.id)}"
+                            >Remove</button>
+                        `
+                        : ""
+                }
+            </div>
+        </div>
+    `).join("") || "<p>No members available.</p>";
+
+    // Activity log
+    const activityHTML = data.activity.map(item => `
+        <div class="activity-row">
+            <div>
+                <b>${escapeHTML(item.message)}</b>
+                <small>${escapeHTML(item.time)}</small>
+            </div>
+        </div>
+    `).join("");
+
+    $("activity-list").innerHTML = activityHTML;
+
+    $("recent-activity").innerHTML =
+        data.activity.slice(0, 4).map(item => `
+            <div class="activity-row">
+                <div>
+                    <b>${escapeHTML(item.message)}</b>
+                    <small>${escapeHTML(item.time)}</small>
+                </div>
+            </div>
+        `).join("");
+
+    renderSubmission();
+}
+function showView(name) {
+    document.querySelectorAll(".view").forEach(view => {
+        view.classList.toggle(
+            "active",
+            view.id === name + "-view"
+        );
+    });
+
+    document.querySelectorAll(".nav-btn").forEach(button => {
+        button.classList.toggle(
+            "active",
+            button.dataset.view === name
+        );
+    });
+
+    const titles = { submission: "Assignment upload", activity: "Activity log" };
+    $("page-title").textContent =
+        titles[name] || name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+document.querySelectorAll(".nav-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        showView(button.dataset.view);
+    });
+});
+
+document.addEventListener("click", event => {
+    if (event.target.closest("[data-new-task]")) taskDialog();
+});
+
+function field(
+    label,
+    name,
+    type = "text",
+    value = "",
+    required = true,
+    extra = ""
+) {
+    return `
+        <div class="form-field">
+            <label for="f-${name}">${label}</label>
+
+            <input
+                id="f-${name}"
+                name="${name}"
+                type="${type}"
+                value="${escapeHTML(value)}"
+                ${required ? "required" : ""}
+                ${extra}
+            >
+        </div>
+    `;
+}
+
+function openDialog(title, fieldsHTML, onSave) {
+    const dialog = $("edit-dialog");
+    const form = $("edit-form");
+
+    $("dialog-title").textContent = title;
+    $("dialog-fields").innerHTML = fieldsHTML;
+
+    form.onsubmit = function(event) {
+        event.preventDefault();
+
+        if (!form.reportValidity()) {
+            return;
+        }
+
+        const formData = new FormData(form);
+        const result = onSave(formData);
+
+        if (result === false) {
+            return;
+        }
+
+        dialog.close();
+        form.reset();
+    };
+
+    // Close (×) and Cancel buttons must never submit the form.
+    form.querySelectorAll('[value="cancel"]').forEach(button => {
+        button.onclick = function(event) {
+            event.preventDefault();
+            if (dialog.open) dialog.close();
+            form.reset();
+        };
+    });
+
+    // Pressing Enter in a normal input saves the form.
+    // Do not intercept Enter in textareas, where it should make a new line.
+    form.onkeydown = function(event) {
+        if (
+            event.key === "Enter" &&
+            event.target.tagName === "INPUT" &&
+            event.target.type !== "button" &&
+            event.target.type !== "submit"
+        ) {
+            event.preventDefault();
+            if (form.reportValidity()) {
+                form.requestSubmit($("save-dialog"));
+            }
+        }
+    };
+
+    // Close dialog if user presses Escape
+    dialog.oncancel = function() {
+        form.reset();
+    };
+
+    dialog.showModal();
+}
+
+
+
+function taskDialog(task = null) {
+    const fieldsHTML =
+        field(
+            "Task title",
+            "title",
+            "text",
+            task?.title || "",
+            true,
+            'maxlength="120"'
+        ) +
+
+        `
+            <div class="form-field">
+                <label for="f-assignee">Assigned member</label>
+
+                <select id="f-assignee" name="assignee">
+                    ${memberOptions(task ? (task.assignee || "") : (data.members[0]?.name || ""))}
+                </select>
+            </div>
+        ` +
+
+        field(
+            "Due date",
+            "due",
+            "date",
+            task?.due || "",
+            false
+        ) +
+
+        `
+            <div class="form-field">
+                <label for="f-description">Description</label>
+
+                <textarea
+                    id="f-description"
+                    name="description"
+                    rows="3"
+                >${escapeHTML(task?.description || "")}</textarea>
+            </div>
+        `;
+
+    openDialog(
+        task ? "Edit task" : "Create task",
+        fieldsHTML,
+
+        form => {
+            const title = String(form.get("title") || "").trim();
+
+            if (!title) {
+                notify("Task title zaroori hai.");
+                return false;
+            }
+
+            const updatedTask = {
+                id: task?.id ?? Date.now(),
+                title,
+                assignee: String(form.get("assignee") || ""),
+                due: String(form.get("due") || ""),
+                description: String(
+                    form.get("description") || ""
+                ).trim(),
+                status: task?.status || "Not Started"
+            };
+
+            if (task) {
+                data.tasks = data.tasks.map(item =>
+                    String(item.id) === String(task.id) ? updatedTask : item
+                );
+
+                logActivity("Edited task: " + title);
+            } else {
+                data.tasks.push(updatedTask);
+                logActivity("Created task: " + title);
+            }
+
+            persist();
+            notify("Task saved.");
+        }
+    );
+}
+
+$("new-task-top").addEventListener("click", () => { if (isAdmin) taskDialog(); });
+
+$("create-task").addEventListener("click", () => { if (isAdmin) taskDialog(); });
+
+$("task-search").addEventListener("input", render);
+
+$("task-filter").addEventListener("change", render);
+$("task-list").addEventListener("change", event => {
+    if (!isAdmin) { render(); notify("Only Admin can change task status in this version."); return; }
+    const select = event.target.closest("[data-task-status]");
+
+    if (!select) return;
+
+    const task = data.tasks.find(
+        item => String(item.id) === select.dataset.taskStatus
+    );
+
+    if (!task) return;
+
+    task.status = select.value;
+
+    logActivity(
+        `${task.title} status changed to ${task.status}`
+    );
+
+    persist();
+    notify("Task status updated.");
+});
+
+$("task-list").addEventListener("click", event => {
+    if (!isAdmin) { notify("Only Admin can edit or delete tasks."); return; }
+    const button = event.target.closest("button");
+    if (!button) return;
+
+    const editId = button.getAttribute("data-edit");
+    const deleteId = button.getAttribute("data-delete");
+
+    if (editId !== null) {
+        const task = data.tasks.find(item => String(item.id) === String(editId));
+        if (task) taskDialog(task);
+        return;
+    }
+
+    if (deleteId !== null) {
+        event.preventDefault();
+        const taskIndex = data.tasks.findIndex(item => String(item.id) === String(deleteId));
+
+        if (taskIndex === -1) {
+            notify("Task nahi mila. Page refresh karke dobara try karein.");
+            return;
+        }
+
+        const deletedTask = data.tasks[taskIndex];
+        if (!confirm(`Delete task "${deletedTask.title}"?`)) return;
+        data.tasks.splice(taskIndex, 1);
+        logActivity("Deleted task: " + deletedTask.title);
+        persist();
+        notify("Task deleted successfully.");
+    }
+});
+$("edit-workspace").addEventListener("click", () => {
+    if (!isAdmin) { notify("Only Admin can edit the workspace."); return; }
+    openDialog(
+        "Edit workspace name",
+        field("Workspace name", "workspaceName", "text", data.workspaceName || "Group Assignment", true, 'maxlength="80"'),
+        form => {
+            const name = String(form.get("workspaceName") || "").trim();
+            if (!name) {
+                notify("Workspace name zaroori hai.");
+                return false;
+            }
+            data.workspaceName = name;
+            logActivity("Updated workspace name to: " + name);
+            persist();
+            notify("Workspace name updated.");
+        }
+    );
+});
+
+$("edit-assignment").addEventListener("click", () => {
+    if (!isAdmin) { notify("Only Admin can edit assignment details."); return; }
+    const fieldsHTML =
+        field(
+            "Assignment title",
+            "title",
+            "text",
+            data.assignment.title,
+            true,
+            'maxlength="160"'
+        ) +
+
+        field(
+            "Due date",
+            "due",
+            "date",
+            data.assignment.due,
+            false
+        ) +
+
+        `
+            <div class="form-field">
+                <label for="f-description">Description</label>
+
+                <textarea
+                    id="f-description"
+                    name="description"
+                    rows="3"
+                >${escapeHTML(data.assignment.description)}</textarea>
+            </div>
+        `;
+
+    openDialog("Edit assignment", fieldsHTML, form => {
+        const title = String(form.get("title") || "").trim();
+
+        if (!title) {
+            notify("Assignment title zaroori hai.");
+            return false;
+        }
+
+        data.assignment = {
+            title,
+            due: String(form.get("due") || ""),
+            description: String(
+                form.get("description") || ""
+            ).trim()
+        };
+
+        logActivity("Updated assignment details");
+
+        persist();
+        notify("Assignment updated.");
+    });
+});
+$("add-member").addEventListener("click", () => {
+    if (!isAdmin) { notify("Only Admin can add members."); return; }
+    openDialog(
+        "Add member",
+
+        field(
+            "Member name",
+            "name",
+            "text",
+            "",
+            true,
+            'maxlength="80" autocomplete="name"'
+        ) +
+        field(
+            "SBU ID",
+            "sbuId",
+            "text",
+            "",
+            true,
+            'maxlength="40" placeholder="Enter SBU ID"'
+        ),
+
+        form => {
+            const name = String(form.get("name") || "").trim();
+            const sbuId = String(form.get("sbuId") || "").trim();
+
+            if (!name || !sbuId) {
+                notify("Member name aur SBU ID dono zaroori hain.");
+                return false;
+            }
+
+            const exists = data.members.some(
+                member =>
+                    member.name.toLowerCase() === name.toLowerCase()
+            );
+
+            if (exists) {
+                notify("That member already exists.");
+                return false;
+            }
+
+            const idExists = data.members.some(
+                member => String(member.sbuId || "").toLowerCase() === sbuId.toLowerCase()
+            );
+
+            if (idExists) {
+                notify("That SBU ID already exists.");
+                return false;
+            }
+
+            data.members.push({
+                id: Date.now(),
+                name,
+                sbuId,
+                role: "Member",
+                access: "Pending"
+            });
+
+            logActivity(
+                "Added member (pending approval): " + name
+            );
+
+            persist();
+            notify("Member added as pending.");
+        }
+    );
+});
+
+$("member-list").addEventListener("click", event => {
+    if (!isAdmin) { notify("Only Admin can manage members."); return; }
+    const editMemberButton = event.target.closest("[data-edit-member]");
+    const approveButton = event.target.closest("[data-approve]");
+    const pendingButton = event.target.closest("[data-pending]");
+    const removeButton = event.target.closest("[data-remove-member]");
+
+    if (editMemberButton) {
+        const member = data.members.find(
+            item => String(item.id) === editMemberButton.dataset.editMember
+        );
+        if (!member) return;
+
+        const editFields =
+            field("Member name", "name", "text", member.name || "", true, 'maxlength="80" autocomplete="name"') +
+            field("SBU ID", "sbuId", "text", member.sbuId || "", false, 'maxlength="40" placeholder="Add SBU ID (optional for now)"');
+
+        openDialog("Edit team member", editFields, form => {
+            const name = String(form.get("name") || "").trim();
+            const sbuId = String(form.get("sbuId") || "").trim();
+            if (!name) {
+                notify("Member name zaroori hai.");
+                return false;
+            }
+
+            const duplicateName = data.members.some(item =>
+                String(item.id) !== String(member.id) &&
+                item.name.toLowerCase() === name.toLowerCase()
+            );
+            if (duplicateName) {
+                notify("That member name already exists.");
+                return false;
+            }
+
+            const duplicateSbu = sbuId && data.members.some(item =>
+                String(item.id) !== String(member.id) &&
+                String(item.sbuId || "").toLowerCase() === sbuId.toLowerCase()
+            );
+            if (duplicateSbu) {
+                notify("That SBU ID already exists.");
+                return false;
+            }
+
+            const oldName = member.name;
+            member.name = name;
+            member.sbuId = sbuId;
+            // Keep task assignments consistent when a member's name changes.
+            data.tasks.forEach(task => {
+                if (task.assignee === oldName) task.assignee = name;
+            });
+            logActivity("Edited team member: " + name);
+            persist();
+            notify("Member details updated.");
+        });
+        return;
+    }
+
+    if (approveButton) {
+        const member = data.members.find(
+            item => String(item.id) === approveButton.dataset.approve
+        );
+
+        if (member && member.role !== "Admin") {
+            member.access = "Approved";
+
+            logActivity("Admin approved " + member.name);
+
+            persist();
+            notify("Member approved.");
+        }
+
+        return;
+    }
+
+    if (pendingButton) {
+        const member = data.members.find(
+            item => String(item.id) === pendingButton.dataset.pending
+        );
+
+        if (member && member.role !== "Admin") {
+            member.access = "Pending";
+
+            logActivity("Set member to pending: " + member.name);
+
+            persist();
+            notify("Member access set to pending.");
+        }
+
+        return;
+    }
+
+    if (removeButton) {
+        const member = data.members.find(
+            item => String(item.id) === removeButton.dataset.removeMember
+        );
+
+        if (
+            member &&
+            member.role !== "Admin" &&
+            confirm("Remove " + member.name + "?")
+        ) {
+            data.members = data.members.filter(
+                item => String(item.id) !== String(member.id)
+            );
+            data.tasks.forEach(task => {
+                if (task.assignee === member.name) task.assignee = "";
+            });
+
+            logActivity("Removed member " + member.name);
+
+            persist();
+            notify("Member removed.");
+        }
+    }
+});
+
+// Final assignment submission and admin approval actions
+$("assignment-file").addEventListener("change", () => {
+    const file = $("assignment-file").files[0];
+    if (file) $("upload-progress-text").textContent = `Selected: ${file.name} · ${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+    else renderSubmission();
+});
+
+$("submit-assignment").addEventListener("click", async () => {
+    const tasksComplete = data.tasks.length > 0 && data.tasks.every(task => ["Submitted", "Approved"].includes(task.status));
+    const file = $("assignment-file").files[0];
+    if (!tasksComplete) {
+        notify("Pehle sabhi tasks ko Submitted ya Approved karein.");
+        return;
+    }
+    if (!file) {
+        notify("Pehle assignment file select karein.");
+        $("assignment-file").focus();
+        return;
+    }
+    const allowed = /\.(pdf|doc|docx|ppt|pptx|zip)$/i.test(file.name);
+    if (!allowed) {
+        notify("PDF, DOC, DOCX, PPT, PPTX ya ZIP file select karein.");
+        return;
+    }
+    if (file.size <= 0) {
+        notify("This file is empty. Please choose a valid assignment file.");
+        return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+        notify("File 25 MB se chhoti honi chahiye in this demo.");
+        return;
+    }
+    const existing = getSubmission();
+    if (existing && ["Pending approval", "Approved"].includes(existing.status) &&
+        !confirm("A submission already exists (" + existing.status + "). Replace it?")) return;
+    const submitButton = $("submit-assignment");
+    submitButton.disabled = true;
+    submitButton.textContent = "Saving file…";
+    try {
+        await saveLocalSubmissionFile(file);
+        setSubmission({ filename: file.name, fileSize: file.size, status: "Pending approval", submittedAt: new Date().toLocaleString(), feedback: "" });
+        logActivity("Final assignment submitted for admin approval: " + file.name);
+        persist();
+        notify("Assignment saved in this browser and sent for demo admin review.");
+    } catch (error) {
+        console.error("Assignment file save error:", error);
+        notify("File save nahi ho payi. Browser storage permission/space check karein.");
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Submit for admin approval";
+        renderSubmission();
+    }
+});
+
+document.addEventListener("click", event => {
+    if (event.target.id === "approve-submission") {
+        const submission = getSubmission();
+        if (!submission) return;
+        const allDone = data.tasks.length > 0 && data.tasks.every(task => ["Submitted", "Approved"].includes(task.status));
+        if (!allDone) {
+            notify("Sabhi tasks Submitted/Approved hone chahiye.");
+            return;
+        }
+        submission.status = "Approved";
+        submission.feedback = "Approved by admin.";
+        setSubmission(submission);
+        logActivity("Admin approved final assignment: " + submission.filename);
+        persist();
+        notify("Final assignment approved.");
+    }
+    if (event.target.id === "request-changes") {
+        const submission = getSubmission();
+        if (!submission) return;
+        submission.status = "Changes requested";
+        submission.feedback = "Please update the assignment and submit it again.";
+        setSubmission(submission);
+        logActivity("Admin requested changes to final assignment.");
+        persist();
+        notify("Changes requested. Assignment ko update karke dobara submit karein.");
+    }
+    if (event.target.closest("[data-download-submission]")) {
+        downloadLocalSubmissionFile().catch(error => {
+            console.warn("Submitted file download error:", error);
+            notify(error.message || "Submitted file could not be downloaded.");
+        });
+    }
+    if (event.target.id === "remove-submission") {
+        if (confirm("Remove this submission and its saved file from this browser?")) {
+            setSubmission(null);
+            removeLocalSubmissionFile();
+            $("assignment-file").value = "";
+            logActivity("Removed final assignment submission.");
+            persist();
+            notify("Submission removed.");
+        }
+    }
+});
+
+// Authentication + shared cloud workspace.
+$("auth-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const button = $("auth-submit"), errorBox = $("auth-error");
+  button.disabled = true; button.textContent = "Signing in…"; errorBox.textContent = "";
+  try {
+    await signInWithEmailAndPassword(auth, $("auth-email").value.trim(), $("auth-password").value);
+  } catch (error) {
+    errorBox.textContent = error.code === "auth/invalid-credential" ? "Email ya password sahi nahi hai." : (error.message || "Sign-in failed.");
+  } finally { button.disabled = false; button.textContent = "Sign in securely"; }
+});
+$("logout-button").addEventListener("click", async () => { if (confirm("Log out of GroupMate?")) await signOut(auth); });
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  if (remoteUnsubscribe) { remoteUnsubscribe(); remoteUnsubscribe = null; }
+  if (!user) {
+    isAdmin = false; document.body.classList.add("auth-locked"); $("auth-gate").style.display = "grid"; $("role-badge").textContent = "SIGNED OUT"; return;
+  }
+  isAdmin = ADMIN_EMAIL !== "replace_with_your_admin_email" && (user.email || "").toLowerCase() === ADMIN_EMAIL;
+  document.body.classList.remove("auth-locked"); $("auth-gate").style.display = "none";
+  $("role-badge").textContent = isAdmin ? "👑 ADMIN" : "👤 MEMBER · READ ONLY";
+  // Non-admins are read-only in this first secure cloud version.
+  document.querySelectorAll("#new-task-top,#create-task,#edit-assignment,#edit-workspace,#add-member,#submit-assignment").forEach(el => el.hidden = !isAdmin);
+  try {
+    const snap = await getDoc(sharedDoc);
+    if (snap.exists()) {
+      cloudApplying = true;
+      const remote = snap.data();
+      data = { workspaceName: remote.workspaceName || initialData.workspaceName, assignment: { ...initialData.assignment, ...(remote.assignment || {}) }, members: Array.isArray(remote.members) ? remote.members : initialData.members.map(m=>({...m})), tasks: Array.isArray(remote.tasks) ? remote.tasks : [], activity: Array.isArray(remote.activity) ? remote.activity : [] };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      cloudApplying = false;
+    } else if (isAdmin) {
+      await setDoc(sharedDoc, { ...data, updatedAt: new Date().toISOString(), updatedBy: user.uid });
+    } else {
+      $("auth-error").textContent = "Workspace abhi Admin ne initialize nahi kiya hai. Admin se contact karein.";
+    }
+    remoteUnsubscribe = onSnapshot(sharedDoc, (remoteSnap) => {
+      if (!remoteSnap.exists()) return;
+      cloudApplying = true;
+      const remote = remoteSnap.data();
+      data = { workspaceName: remote.workspaceName || initialData.workspaceName, assignment: { ...initialData.assignment, ...(remote.assignment || {}) }, members: Array.isArray(remote.members) ? remote.members : [], tasks: Array.isArray(remote.tasks) ? remote.tasks : [], activity: Array.isArray(remote.activity) ? remote.activity : [] };
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (_) {}
+      render(); cloudApplying = false;
+    }, (error) => { console.error(error); notify("Live sync unavailable. Check Firestore security rules."); });
+  } catch (error) { cloudApplying = false; console.error(error); notify("Cloud workspace could not load. Check Firestore rules and Firebase setup."); }
+  render(); renderSubmission();
+});
+
+// Initial render
+render();
+renderSubmission();
+</script>
+</body>
+</html>
